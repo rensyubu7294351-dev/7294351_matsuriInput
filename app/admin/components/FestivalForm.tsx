@@ -74,7 +74,7 @@ export default function FestivalForm({ initial, onSaved, onCancel }: FestivalFor
           </div>
           <div className="space-y-1">
             <Label htmlFor="spreadsheetId">スプレッドシートID *</Label>
-            <Input id="spreadsheetId" value={spreadsheetId} onChange={e => setSpreadsheetId(e.target.value)} placeholder="URLの /d/【ここ】/edit の部分" required />
+            <Input id="spreadsheetId" value={spreadsheetId} onChange={e => setSpreadsheetId(e.target.value)} placeholder="スプレッドシートURLの /d/【ここ】/edit の部分だけコピペ" required />
           </div>
           <div className="space-y-1">
             <Label htmlFor="participationGroupLink">参加グループ招待リンク *</Label>
