@@ -19,8 +19,8 @@ export default function MyIdPage() {
         const profile = await liff.getProfile();
         setLineUserId(profile.userId);
         setDisplayName(profile.displayName);
-      } catch {
-        setError("LINEアプリから開き直してください");
+      } catch (e) {
+        setError("エラー: " + (e instanceof Error ? e.message : String(e)));
       }
     }
     init();

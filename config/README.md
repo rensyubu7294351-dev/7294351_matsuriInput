@@ -187,9 +187,94 @@ LINE user IDを確認するためには、LINEアプリからLIFFページを開
   1. https://vercel.com にアクセス
   2. 「Add New Project」→ GitHubのリポジトリを選択
   3. 「Environment Variables」に以下を全て入力：
+
+  ┌──────────────────────────────┬──────────────────────────────────────────────────────────────────────┐
+  │            変数名            │                                  値                                  │
+  ├──────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+  │ GOOGLE_SERVICE_ACCOUNT_EMAIL │ id-7294351-demo-liff@hale-woodland-491504-d2.iam.gserviceaccount.com │
+  ├──────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+  │ GOOGLE_PRIVATE_KEY           │ .envの秘密鍵（"-----BEGIN...から最後の"まで全部）                    │
+  ├──────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+  │ MEMBERS_SPREADSHEET_ID       │ 1qmkRumQec2Sg4wjBRaOsfQET-gwLSHRTohQkva9ODJ0                         │
+  ├──────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+  │ LINE_CHANNEL_SECRET          │ 2e6e29c937b80e040759543bff63bdc1                                     │
+  ├──────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+  │ LINE_CHANNEL_ACCESS_TOKEN    │ .envの値                                                             │
+  ├──────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+  │ LIFF_ID                      │ 2008786392-HGBbfaYj                                                  │
+  ├──────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+  │ NEXT_PUBLIC_LIFF_ID          │ 2008786392-HGBbfaYj                                                  │
+  ├──────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+  │ MAGIC_LINK_SECRET            │ RYm7ab1bGRwcXVrQ5mYNLlA9Qtr7jK+zCJbpeVkkNrw=                         │
+  ├──────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+  │ APPS_SCRIPT_WEBHOOK_SECRET   │ Google Apps Scriptからの通知が本物かどうか確認するための合言葉                   
+
+　　　　　　　　　　　　　　　　　　　　  MOQIrIeAohA/KsHFIl7pwDzfv4hmp8FpsE9J73QGvAM=  
+  ├──────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+  │ CRON_SECRET                  │ Vercel Cronの自動実行が本物かどうか確認するための合言葉                                            
+         │　　　　　　　　　　　　　　　　8p7X1Jtew6Ll/Af70Hp835EcQE+OrXOWHug9SVcMrqI=  
+  ├──────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+  │ NEXT_PUBLIC_APP_URL          │ 一旦空欄                                                             │
+  ├──────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+  │ ADMIN_LINE_USER_IDS          │ 一旦空欄                                                             │
+  └──────────────────────────────┴──────────────────────────────────────────────────────────────────────┘
+
+  4. 「Deploy」をクリック（2〜3分で完了）
+
   Step 3: LINE user IDを確認
 
   デプロイ完了後、LINEアプリで以下のURLを開くと自分のLINE user IDが表示されます：
-  https://liff.line.me/2008786392-HGBbfaYj?path=/liff/myid
+  デプロイ完了後、https://xxxxx.vercel.app のようなURLが発行されます。
 
-  表示されたIDを ADMIN_LINE_USER_IDS にVercelの環境変数から設定→再デプロイで完了です
+
+LIFFのエンドポイントURL（どのページを開くか）をまだVercelのURLに更新する
+VercelのURLをコピーしておく。
+VercelのURLは、https://7294351matsuriinput.vercel.app/　です
+
+  1. https://developers.line.biz にログイン
+  2. 該当チャネル →「LIFF」タブ
+  3. LIFFアプリの「Endpoint URL」を確認
+  4. 現在のURLを https://【VercelのURL】/liff/myid に変更。変更後は「https://7294351matsuriinput.vercel.app/liff/myid」
+  5. 「Update」をクリック
+
+Vercelの環境変数も更新が必要です。
+
+  Vercelで NEXT_PUBLIC_APP_URL を設定                                                                       
+  
+  1. https://vercel.com → 7294351matsuriinput プロジェクト                                                  
+  2. 「Settings」→「Environment Variables」                 
+  3. NEXT_PUBLIC_APP_URL を追加                                                                             
+    - 値：https://7294351matsuriinput.vercel.app                                                            
+  4. 「Save」
+  5. 「Deployments」→ 最新のデプロイ →「Redeploy」                                                          
+
+
+1. LINEアプリを開く
+  2. 自分自身のトークを開く（友だちリスト → 一番上に自分の名前）
+  3. 以下のURLを貼り付けて送信：
+  https://liff.line.me/2008786392-HGBbfaYj
+  4. 送信されたURLをタップ（LINEの中でタップすることが重要）
+
+
+  ② LINE user IDを確認して ADMIN_LINE_USER_IDS を設定
+LINE user IDの確認方法
+ LINE Developers Consoleで直接確認できます。
+                                                                                                            
+  1. https://developers.line.biz にログイン                 
+  2. 該当チャネル →「Basic settings」                                                                       
+  3. 一番下に「Your user ID」という項目があります                                                           
+  4. そこに表示されているIDが自分のLINE user IDです 
+  5.LINE user IDを。.envのADMIN_LINE_USER_IDSに記載する。
+ Vercelに ADMIN_LINE_USER_IDS を設定
+
+  1. Vercel管理画面 →「Settings」→「Environment Variables」
+  2. ADMIN_LINE_USER_IDS を追加：
+    - Name: ADMIN_LINE_USER_IDS
+    - Value: Ub7a303a1a015b5241136a49e26b43046
+  3. 「Save」
+  4. 「Deployments」→ 最新のデプロイ →「Redeploy
+
+  - LINEアプリで以下のURLを開く：
+  https://liff.line.me/2008786392-HGBbfaYj?path=/liff/myid
+  - 表示されたIDを ADMIN_LINE_USER_IDS に設定 → 「Redeploy」
+
