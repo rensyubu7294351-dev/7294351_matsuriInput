@@ -274,6 +274,9 @@ LINE user IDの確認方法
   3. 「Save」
   4. 「Deployments」→ 最新のデプロイ →「Redeploy
 
+LIFFアプリの「LIFF ID」の値とvercelのNEXT_PUBLIC_LIFF_IDの値は完全一致であること
+
+
   - LINEアプリで以下のURLを開く：
   https://liff.line.me/2008786392-HGBbfaYj?path=/liff/myid
   - 表示されたIDを ADMIN_LINE_USER_IDS に設定 → 「Redeploy」

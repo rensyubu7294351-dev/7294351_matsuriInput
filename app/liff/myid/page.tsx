@@ -14,13 +14,15 @@ export default function MyIdPage() {
   useEffect(() => {
     async function init() {
       try {
-        await liff.init({ liffId: process.env.NEXT_PUBLIC_LIFF_ID! });
+        const liffId = process.env.NEXT_PUBLIC_LIFF_ID || "2008786392-HGBbfaYj";
+        await liff.init({ liffId });
         if (!liff.isLoggedIn()) { liff.login(); return; }
         const profile = await liff.getProfile();
         setLineUserId(profile.userId);
         setDisplayName(profile.displayName);
       } catch (e) {
-        setError("エラー: " + (e instanceof Error ? e.message : String(e)));
+        const liffId = process.env.NEXT_PUBLIC_LIFF_ID || "2008786392-HGBbfaYj";
+        setError(`エラー: ${e instanceof Error ? e.message : String(e)} (使用LIFF ID: ${liffId})`);
       }
     }
     init();
