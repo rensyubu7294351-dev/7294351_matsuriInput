@@ -36,6 +36,13 @@ export async function getFestivalConfigById(
   return configs.find((c) => c.id === id);
 }
 
+export async function getFestivalConfigBySpreadsheetId(
+  spreadsheetId: string
+): Promise<FestivalConfig | undefined> {
+  const configs = await getFestivalConfigs();
+  return configs.find((c) => c.spreadsheetId === spreadsheetId);
+}
+
 export async function saveFestivalConfig(
   config: Omit<FestivalConfig, "id" | "createdAt">
 ): Promise<FestivalConfig> {

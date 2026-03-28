@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { findMemberByNickname, logSent } from "@/lib/google-sheets";
-import { getFestivalConfigById } from "@/lib/festival-config";
+import { getFestivalConfigBySpreadsheetId } from "@/lib/festival-config";
 import { sendInviteLink, InviteType } from "@/lib/line-push";
 
 // Google Apps Script からのWebhookシークレット検証
@@ -21,10 +21,10 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { festivalId, nickname, status } = body;
+  const { spreadsheetId, nickname, status } = body;
 
-  if (!festivalId || !nickname || !status) {
-    return NextResponse.json({ error: "festivalId, nickname, status are required" }, { status: 400 });
+  if (!spreadsheetId || !nickname || !status) {
+    return NextResponse.json({ error: "spreadsheetId, nickname, status are required" }, { status: 400 });
   }
 
   const inviteType = resolveInviteType(status);
@@ -34,12 +34,12 @@ export async function POST(req: NextRequest) {
   }
 
   const [config, member] = await Promise.all([
-    getFestivalConfigById(festivalId),
+    getFestivalConfigBySpreadsheetId(spreadsheetId),
     findMemberByNickname(nickname),
   ]);
 
   if (!config) {
-    return NextResponse.json({ error: `Festival config not found: ${festivalId}` }, { status: 404 });
+    return NextResponse.json({ error: `Festival config not found for spreadsheet: ${spreadsheetId}` }, { status: 404 });
   }
 
   if (!member || !member.lineUserId) {
