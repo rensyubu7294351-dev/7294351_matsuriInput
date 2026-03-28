@@ -63,7 +63,7 @@ export default function SetupPanel() {
           <div className="flex flex-wrap gap-1">
             {status.missingSheets.map((s) => (
               <Badge key={s} variant="outline" className="text-orange-600 border-orange-300">
-                {s} が未作成
+                {({ members: "メンバーのLINE ID管理シート", festival_configs: "祭り設定シート", sent_log: "送信履歴シート" } as Record<string, string>)[s] ?? s} が未作成
               </Badge>
             ))}
           </div>
