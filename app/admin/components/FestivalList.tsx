@@ -24,10 +24,17 @@ interface FestivalListProps {
 
 function deadlineBadge(deadline: string) {
   if (!deadline) return null;
-  const today = new Date().toISOString().slice(0, 10);
-  if (deadline < today) return <Badge variant="secondary">期日過ぎ</Badge>;
-  if (deadline === today) return <Badge variant="destructive">本日期日</Badge>;
-  return <Badge variant="outline">{deadline}まで</Badge>;
+  // JST での現在時刻
+  const nowJST = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const todayJST = nowJST.toISOString().slice(0, 10);
+  const deadlineDateJST = deadline.slice(0, 10);
+  // "YYYY-MM-DD HH:mm" をJSTのDateに変換
+  const deadlineJST = new Date(deadline.replace(" ", "T") + ":00+09:00");
+
+  if (deadlineJST < nowJST) return <Badge variant="secondary">期日過ぎ</Badge>;
+  if (deadlineDateJST === todayJST) return <Badge variant="destructive">本日期日</Badge>;
+  const display = deadlineDateJST.replace(/-/g, "/") + " " + deadline.slice(11, 16);
+  return <Badge variant="outline">{display}まで</Badge>;
 }
 
 export default function FestivalList({ onSelect }: FestivalListProps) {

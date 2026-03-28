@@ -27,7 +27,10 @@ export default function FestivalForm({ initial, onSaved, onCancel }: FestivalFor
   const [spreadsheetId, setSpreadsheetId] = useState(initial?.spreadsheetId ?? "");
   const [participationGroupLink, setParticipationGroupLink] = useState(initial?.participationGroupLink ?? "");
   const [pendingGroupLink, setPendingGroupLink] = useState(initial?.pendingGroupLink ?? "");
-  const [deadline, setDeadline] = useState(initial?.deadline ?? "");
+  const [deadlineDate, setDeadlineDate] = useState(initial?.deadline?.slice(0, 10) ?? "");
+  const [deadlineTime, setDeadlineTime] = useState(
+    (initial?.deadline?.length ?? 0) > 10 ? initial!.deadline!.slice(11, 16) : ""
+  );
   const [driveFolderUrl, setDriveFolderUrl] = useState(initial?.driveFolderUrl ?? "");
   const [saving, setSaving] = useState(false);
 
@@ -41,7 +44,7 @@ export default function FestivalForm({ initial, onSaved, onCancel }: FestivalFor
       spreadsheetId,
       participationGroupLink,
       pendingGroupLink,
-      deadline,
+      deadline: `${deadlineDate} ${deadlineTime}`,
       driveFolderUrl,
     };
 
@@ -85,8 +88,12 @@ export default function FestivalForm({ initial, onSaved, onCancel }: FestivalFor
             <Input id="pendingGroupLink" value={pendingGroupLink} onChange={e => setPendingGroupLink(e.target.value)} placeholder="https://line.me/R/ti/g/..." required />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="deadline">回答期日 *</Label>
-            <Input id="deadline" type="date" value={deadline} onChange={e => setDeadline(e.target.value)} required />
+            <Label>回答期日 *（日本時間）</Label>
+            <div className="flex gap-2">
+              <Input type="date" value={deadlineDate} onChange={e => setDeadlineDate(e.target.value)} required className="flex-1" />
+              <Input type="time" value={deadlineTime} onChange={e => setDeadlineTime(e.target.value)} required className="w-32" placeholder="21:00" />
+            </div>
+            <p className="text-xs text-gray-500">例：2026/03/28 ＋ 21:00</p>
           </div>
           <div className="space-y-1">
             <Label htmlFor="driveFolderUrl">ドライブフォルダURL（任意）</Label>

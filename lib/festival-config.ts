@@ -107,14 +107,18 @@ export async function updateFestivalConfig(
   });
 }
 
-/** 今日が期日翌日になっている祭りを返す */
+/** 今日（JST）が期日翌日になっている祭りを返す */
 export async function getFestivalsForTodaySend(): Promise<FestivalConfig[]> {
   const configs = await getFestivalConfigs();
-  const today = new Date().toISOString().slice(0, 10);
+  // VercelはUTC動作のため+9時間でJSTの今日の日付を取得
+  const nowJST = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const todayJST = nowJST.toISOString().slice(0, 10);
   return configs.filter((c) => {
     if (!c.deadline) return false;
-    const deadlinePlus1 = new Date(c.deadline);
+    // deadline は "YYYY-MM-DD HH:mm" 形式（JST）、日付部分だけ使用
+    const deadlineDateJST = c.deadline.slice(0, 10);
+    const deadlinePlus1 = new Date(deadlineDateJST);
     deadlinePlus1.setDate(deadlinePlus1.getDate() + 1);
-    return deadlinePlus1.toISOString().slice(0, 10) === today;
+    return deadlinePlus1.toISOString().slice(0, 10) === todayJST;
   });
 }
