@@ -23,20 +23,12 @@ function onFormSubmit(e) {
     return;
   }
 
-  // フォームの回答からあだ名と参加ステータスを取得
-  // C列(index 2)=あだ名, H列(index 7)=参加・不参加
-  var responses = e.response.getItemResponses();
-  var nickname = "";
-  var status = "";
-
-  // タイトルで特定せず、インデックスで取得（F列・G列が同名「振り」のため）
-  // スプレッドシートの列順に対応: C=index2, H=index7
-  if (responses.length > 2) {
-    nickname = responses[2].getResponse();
-  }
-  if (responses.length > 7) {
-    status = responses[7].getResponse();
-  }
+  // e.values はスプレッドシートの列に対応（0始まり）
+  // A=0(タイムスタンプ), B=1(メールアドレス), C=2(あだ名), ..., H=7(参加・不参加)
+  // F列・G列が同名「振り」のためタイトルではなく列番号で取得
+  var values = e.values;
+  var nickname = values[2] || "";
+  var status = values[7] || "";
 
   if (!nickname || !status) {
     Logger.log("あだ名またはステータスが取得できませんでした");
