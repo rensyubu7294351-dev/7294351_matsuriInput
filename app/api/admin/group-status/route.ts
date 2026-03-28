@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifySessionToken } from "@/lib/auth";
 import { getFestivalConfigById } from "@/lib/festival-config";
-import { getMembers } from "@/lib/google-sheets";
+import { getMembers, getSentLog } from "@/lib/google-sheets";
 
 async function requireAdmin() {
   const cookieStore = await cookies();
@@ -61,20 +61,29 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ groupId: null, members: [] });
   }
 
-  const [memberIds, allMembers] = await Promise.all([
+  const [memberIds, allMembers, sentLog] = await Promise.all([
     getAllGroupMemberIds(groupId),
     getMembers(),
+    getSentLog(config.spreadsheetId),
   ]);
 
-  const memberIdSet = new Set(memberIds);
+  // 招待リンクを送った人だけに絞り込む
+  const linkType = groupType === "participation" ? "participation" : "pending";
+  const invitedNicknames = new Set(
+    sentLog.filter((s) => s.linkType === linkType).map((s) => s.nickname)
+  );
 
-  const members = allMembers
-    .filter((m) => m.lineUserId)
-    .map((m) => ({
-      nickname: m.nickname,
-      lineUserId: m.lineUserId,
-      joined: memberIdSet.has(m.lineUserId),
-    }));
+  const memberIdSet = new Set(memberIds);
+  const memberMap = new Map(allMembers.map((m) => [m.nickname, m.lineUserId]));
+
+  const members = [...invitedNicknames].map((nickname) => {
+    const lineUserId = memberMap.get(nickname) ?? "";
+    return {
+      nickname,
+      lineUserId,
+      joined: lineUserId ? memberIdSet.has(lineUserId) : false,
+    };
+  });
 
   return NextResponse.json({ groupId, members });
 }
