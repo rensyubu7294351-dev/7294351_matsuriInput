@@ -32,14 +32,14 @@ export default function GroupStatus({ festivalId, groupType, label }: GroupStatu
       const res = await fetch(
         `/api/admin/group-status?festivalId=${festivalId}&groupType=${groupType}`
       );
+      const data = await res.json();
       if (res.ok) {
-        setResult(await res.json());
+        setResult(data);
       } else {
-        const data = await res.json();
         toast.error(data.error ?? "参加状況の取得に失敗しました");
       }
-    } catch {
-      toast.error("通信エラーが発生しました");
+    } catch (e) {
+      toast.error(`エラー: ${e instanceof Error ? e.message : String(e)}`);
     }
     setLoading(false);
   }

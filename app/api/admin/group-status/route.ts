@@ -61,8 +61,17 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ groupId: null, members: [] });
   }
 
-  const [memberIds, allMembers, sentLog] = await Promise.all([
-    getAllGroupMemberIds(groupId),
+  let memberIds: string[];
+  try {
+    memberIds = await getAllGroupMemberIds(groupId);
+  } catch (e) {
+    return NextResponse.json(
+      { error: `LINEグループメンバーの取得に失敗しました: ${e instanceof Error ? e.message : String(e)}` },
+      { status: 500 }
+    );
+  }
+
+  const [allMembers, sentLog] = await Promise.all([
     getMembers(),
     getSentLog(config.spreadsheetId),
   ]);
