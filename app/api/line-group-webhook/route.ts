@@ -30,6 +30,20 @@ async function sendPushToAdmin(message: string): Promise<void> {
   }
 }
 
+async function sendMessageToGroup(groupId: string, message: string): Promise<void> {
+  await fetch("https://api.line.me/v2/bot/message/push", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.LINE_MONITOR_CHANNEL_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify({
+      to: groupId,
+      messages: [{ type: "text", text: message }],
+    }),
+  });
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get("x-line-signature");
@@ -44,8 +58,16 @@ export async function POST(req: NextRequest) {
     // 監視ボットがグループに追加されたとき
     if (event.type === "join" && event.source?.type === "group") {
       const groupId = event.source.groupId as string;
+
+      // グループ内に自分のグループIDを投稿（どのグループかすぐわかる）
+      await sendMessageToGroup(
+        groupId,
+        `━━━━━━━━━━━━━━━\n【このグループのID】\n${groupId}\n━━━━━━━━━━━━━━━\n管理画面で祭り設定を編集して、上のIDを「参加グループID」または「保留グループID」に貼り付けてください。`
+      );
+
+      // 管理者のLINEにも通知
       await sendPushToAdmin(
-        `【グループ参加通知】\n監視ボットが新しいLINEグループに追加されました。\n\nグループID:\n${groupId}\n\n管理画面で該当の祭り設定を「編集」して、このグループIDを「参加グループID」または「保留グループID」の欄に入力してください。`
+        `━━━━━━━━━━━━━━━\n【グループ参加通知】\n監視ボットがグループに追加されました。\n\nグループID:\n${groupId}\n━━━━━━━━━━━━━━━\n管理画面で祭り設定を「編集」して、上のIDを「参加グループID」または「保留グループID」に入力してください。`
       );
     }
   }
