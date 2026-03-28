@@ -29,16 +29,16 @@ async function getExistingSheetTitles(spreadsheetId: string): Promise<string[]> 
 
 const SHEET_DEFINITIONS = [
   {
-    title: "members",
-    headers: ["あだ名", "氏名", "LINE user ID", "登録日時"],
+    title: "メンバー",
+    headers: ["あだ名", "氏名", "LINEユーザーID", "登録日時"],
   },
   {
-    title: "festival_configs",
-    headers: ["id", "festivalName", "spreadsheetId", "participationGroupLink", "pendingGroupLink", "deadline", "driveFolderUrl", "createdAt"],
+    title: "祭り設定",
+    headers: ["ID", "祭り名", "スプレッドシートID", "参加グループリンク", "保留グループリンク", "回答期日", "ドライブフォルダURL", "作成日時"],
   },
   {
-    title: "sent_log",
-    headers: ["festivalId", "nickname", "lineUserId", "status", "sentAt", "linkType"],
+    title: "送信履歴",
+    headers: ["祭りID", "あだ名", "LINEユーザーID", "参加状況", "送信日時", "リンク種別"],
   },
 ];
 

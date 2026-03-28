@@ -54,7 +54,7 @@ export async function updateSheetCell(
 // ---- メンバーシート操作 ----
 
 const MEMBERS_SHEET_ID = process.env.MEMBERS_SPREADSHEET_ID!;
-const MEMBERS_RANGE = "members!A:D"; // あだ名, 氏名, LINE user ID, 登録日時
+const MEMBERS_RANGE = "メンバー!A:D"; // あだ名, 氏名, LINE user ID, 登録日時
 
 export interface Member {
   nickname: string;
@@ -92,7 +92,7 @@ export async function findMemberByLineUserId(
 
 export async function registerMember(member: Omit<Member, "registeredAt">): Promise<void> {
   const registeredAt = new Date().toISOString();
-  await appendSheetRow(MEMBERS_SHEET_ID, "members!A:D", [
+  await appendSheetRow(MEMBERS_SHEET_ID, "メンバー!A:D", [
     member.nickname,
     member.fullName,
     member.lineUserId,
@@ -148,7 +148,7 @@ export async function getAttendanceRecords(
 // ---- 送信済み管理シート ----
 // festival_id | nickname | line_user_id | status | sent_at | link_type
 
-const SENT_LOG_RANGE = "sent_log!A:F";
+const SENT_LOG_RANGE = "送信履歴!A:F";
 
 export interface SentLogEntry {
   festivalId: string;

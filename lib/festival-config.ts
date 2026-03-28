@@ -2,7 +2,7 @@ import { google } from "googleapis";
 import { getSheetValues, appendSheetRow } from "./google-sheets";
 
 const MEMBERS_SHEET_ID = process.env.MEMBERS_SPREADSHEET_ID!;
-const CONFIG_RANGE = "festival_configs!A:H";
+const CONFIG_RANGE = "祭り設定!A:H";
 
 export interface FestivalConfig {
   id: string;
@@ -75,7 +75,7 @@ export async function updateFestivalConfig(
   const sheets = getSheetsClient();
   await sheets.spreadsheets.values.update({
     spreadsheetId: MEMBERS_SHEET_ID,
-    range: `festival_configs!A${sheetRow}:H${sheetRow}`,
+    range: `祭り設定!A${sheetRow}:H${sheetRow}`,
     valueInputOption: "RAW",
     requestBody: {
       values: [[
