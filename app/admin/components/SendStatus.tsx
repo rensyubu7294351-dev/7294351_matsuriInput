@@ -132,7 +132,11 @@ export default function SendStatus({ festivalId, onSelectFestival }: SendStatusP
         <label className="text-sm font-medium text-gray-700">祭りを選択</label>
         <Select value={festivalId ?? ""} onValueChange={onSelectFestival}>
           <SelectTrigger>
-            <SelectValue placeholder="祭りを選択してください" />
+            <SelectValue placeholder="祭りを選択してください">
+              {festivalId
+                ? (festivals.find((f) => f.id === festivalId)?.festivalName ?? festivalId)
+                : null}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {festivals.map((f) => (
