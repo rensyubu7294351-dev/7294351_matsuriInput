@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import GroupStatus from "./GroupStatus";
 
 interface SendRecord {
   nickname: string;
@@ -173,6 +174,9 @@ export default function SendStatus({ festivalId, onSelectFestival }: SendStatusP
               更新
             </Button>
           </div>
+
+          <GroupStatus festivalId={festivalId} groupType="participation" label="参加グループ" />
+          <GroupStatus festivalId={festivalId} groupType="pending" label="保留グループ" />
 
           {loading ? (
             <p className="text-sm text-gray-500">読み込み中...</p>

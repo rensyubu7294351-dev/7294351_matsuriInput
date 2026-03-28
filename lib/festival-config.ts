@@ -2,7 +2,7 @@ import { google } from "googleapis";
 import { getSheetValues, appendSheetRow, initFestivalSentSheet, updateFestivalSentSheetConfig } from "./google-sheets";
 
 const MEMBERS_SHEET_ID = process.env.MEMBERS_SPREADSHEET_ID!;
-const CONFIG_RANGE = "祭り設定!A:H";
+const CONFIG_RANGE = "祭り設定!A:J";
 
 export interface FestivalConfig {
   id: string;
@@ -13,6 +13,8 @@ export interface FestivalConfig {
   deadline: string;
   driveFolderUrl: string;
   createdAt: string;
+  participationGroupId: string;
+  pendingGroupId: string;
 }
 
 export async function getFestivalConfigs(): Promise<FestivalConfig[]> {
@@ -26,6 +28,8 @@ export async function getFestivalConfigs(): Promise<FestivalConfig[]> {
     deadline: row[5] ?? "",
     driveFolderUrl: row[6] ?? "",
     createdAt: row[7] ?? "",
+    participationGroupId: row[8] ?? "",
+    pendingGroupId: row[9] ?? "",
   }));
 }
 
@@ -57,6 +61,8 @@ export async function saveFestivalConfig(
     config.deadline,
     config.driveFolderUrl,
     createdAt,
+    "",
+    "",
   ]);
 
   await initFestivalSentSheet(config.spreadsheetId, {
@@ -90,7 +96,7 @@ export async function updateFestivalConfig(
   const sheets = getSheetsClient();
   await sheets.spreadsheets.values.update({
     spreadsheetId: MEMBERS_SHEET_ID,
-    range: `祭り設定!A${sheetRow}:H${sheetRow}`,
+    range: `祭り設定!A${sheetRow}:J${sheetRow}`,
     valueInputOption: "RAW",
     requestBody: {
       values: [[
@@ -102,6 +108,8 @@ export async function updateFestivalConfig(
         config.deadline,
         config.driveFolderUrl,
         config.createdAt,
+        config.participationGroupId ?? "",
+        config.pendingGroupId ?? "",
       ]],
     },
   });

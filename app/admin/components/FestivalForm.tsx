@@ -17,6 +17,8 @@ interface FestivalFormProps {
     deadline?: string;
     driveFolderUrl?: string;
     createdAt?: string;
+    participationGroupId?: string;
+    pendingGroupId?: string;
   };
   onSaved: () => void;
   onCancel: () => void;
@@ -32,6 +34,8 @@ export default function FestivalForm({ initial, onSaved, onCancel }: FestivalFor
     (initial?.deadline?.length ?? 0) > 10 ? initial!.deadline!.slice(11, 16) : ""
   );
   const [driveFolderUrl, setDriveFolderUrl] = useState(initial?.driveFolderUrl ?? "");
+  const [participationGroupId, setParticipationGroupId] = useState(initial?.participationGroupId ?? "");
+  const [pendingGroupId, setPendingGroupId] = useState(initial?.pendingGroupId ?? "");
   const [saving, setSaving] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -46,6 +50,8 @@ export default function FestivalForm({ initial, onSaved, onCancel }: FestivalFor
       pendingGroupLink,
       deadline: `${deadlineDate} ${deadlineTime}`,
       driveFolderUrl,
+      participationGroupId,
+      pendingGroupId,
     };
 
     const res = await fetch("/api/admin/festivals", {
@@ -98,6 +104,14 @@ export default function FestivalForm({ initial, onSaved, onCancel }: FestivalFor
           <div className="space-y-1">
             <Label htmlFor="driveFolderUrl">ドライブフォルダURL（任意）</Label>
             <Input id="driveFolderUrl" value={driveFolderUrl} onChange={e => setDriveFolderUrl(e.target.value)} placeholder="https://drive.google.com/..." />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="participationGroupId">参加グループID（任意）</Label>
+            <Input id="participationGroupId" value={participationGroupId} onChange={e => setParticipationGroupId(e.target.value)} placeholder="監視ボット追加後にLINEで届きます（例: C4af4980629...）" />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="pendingGroupId">保留グループID（任意）</Label>
+            <Input id="pendingGroupId" value={pendingGroupId} onChange={e => setPendingGroupId(e.target.value)} placeholder="監視ボット追加後にLINEで届きます（例: C4af4980629...）" />
           </div>
           <div className="flex gap-2 pt-2">
             <Button type="submit" disabled={saving}>{saving ? "保存中..." : "保存"}</Button>
