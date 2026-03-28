@@ -82,7 +82,7 @@ export default function AdminClient() {
     <div className="min-h-screen bg-gray-50">
       <Toaster />
       <header className="bg-white border-b px-4 py-3">
-        <h1 className="text-lg font-bold text-gray-800">よさこい 管理画面</h1>
+        <h1 className="text-lg font-bold text-gray-800">祭り担当者 管理画面</h1>
       </header>
 
       <nav className="bg-white border-b px-4">
