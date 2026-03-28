@@ -76,7 +76,7 @@ export default function FestivalForm({ initial, onSaved, onCancel }: FestivalFor
             <Input id="festivalName" value={festivalName} onChange={e => setFestivalName(e.target.value)} placeholder="例：2025年夏祭り" required />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="spreadsheetId">スプレッドシートID *</Label>
+            <Label htmlFor="spreadsheetId">祭りのGoogleスプレッドシートID *</Label>
             <Input id="spreadsheetId" value={spreadsheetId} onChange={e => setSpreadsheetId(e.target.value)} placeholder="スプレッドシートURLの /d/【ここ】/edit の部分だけコピペ" required />
           </div>
           <div className="space-y-1">
