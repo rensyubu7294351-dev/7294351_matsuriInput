@@ -56,13 +56,11 @@ export async function POST(req: NextRequest) {
   );
 
   await logSent({
-    festivalId,
     nickname,
-    lineUserId: member.lineUserId,
     status,
     sentAt: new Date().toISOString(),
     linkType: inviteType,
-  });
+  }, config.spreadsheetId);
 
   return NextResponse.json({ success: true, nickname, inviteType });
 }

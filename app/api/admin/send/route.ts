@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
 
   const [records, sentLog] = await Promise.all([
     getAttendanceRecords(config.spreadsheetId),
-    getSentLog(festivalId),
+    getSentLog(config.spreadsheetId),
   ]);
 
   const sentMap = new Map(sentLog.map((s) => [s.nickname, s]));
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
 
   const [records, sentLog] = await Promise.all([
     getAttendanceRecords(config.spreadsheetId),
-    getSentLog(festivalId),
+    getSentLog(config.spreadsheetId),
   ]);
 
   const sentNicknames = new Set(sentLog.map((s) => s.nickname));
@@ -102,13 +102,11 @@ export async function POST(req: NextRequest) {
         config.festivalName
       );
       await logSent({
-        festivalId,
         nickname: record.nickname,
-        lineUserId: member.lineUserId,
         status: record.status,
         sentAt: new Date().toISOString(),
         linkType: inviteType,
-      });
+      }, config.spreadsheetId);
       sent++;
     } catch (e) {
       errors.push(`送信失敗 ${record.nickname}: ${e instanceof Error ? e.message : String(e)}`);

@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
   for (const festival of festivals) {
     const [records, sentLog] = await Promise.all([
       getAttendanceRecords(festival.spreadsheetId),
-      getSentLog(festival.id),
+      getSentLog(festival.spreadsheetId),
     ]);
 
     const sentNicknames = new Set(sentLog.map((s) => s.nickname));
@@ -54,13 +54,11 @@ export async function GET(req: NextRequest) {
           festival.festivalName
         );
         await logSent({
-          festivalId: festival.id,
           nickname: record.nickname,
-          lineUserId: member.lineUserId,
           status: record.status,
           sentAt: new Date().toISOString(),
           linkType: inviteType,
-        });
+        }, festival.spreadsheetId);
         sent++;
       } catch (e) {
         errors.push(`送信失敗 ${record.nickname}: ${e instanceof Error ? e.message : String(e)}`);

@@ -1,5 +1,5 @@
 import { google } from "googleapis";
-import { getSheetValues, appendSheetRow } from "./google-sheets";
+import { getSheetValues, appendSheetRow, initFestivalSentSheet, updateFestivalSentSheetConfig } from "./google-sheets";
 
 const MEMBERS_SHEET_ID = process.env.MEMBERS_SPREADSHEET_ID!;
 const CONFIG_RANGE = "祭り設定!A:H";
@@ -51,6 +51,14 @@ export async function saveFestivalConfig(
     config.driveFolderUrl,
     createdAt,
   ]);
+
+  await initFestivalSentSheet(config.spreadsheetId, {
+    festivalName: config.festivalName,
+    deadline: config.deadline,
+    participationGroupLink: config.participationGroupLink,
+    pendingGroupLink: config.pendingGroupLink,
+  });
+
   return { id, ...config, createdAt };
 }
 
@@ -89,6 +97,13 @@ export async function updateFestivalConfig(
         config.createdAt,
       ]],
     },
+  });
+
+  await updateFestivalSentSheetConfig(config.spreadsheetId, {
+    festivalName: config.festivalName,
+    deadline: config.deadline,
+    participationGroupLink: config.participationGroupLink,
+    pendingGroupLink: config.pendingGroupLink,
   });
 }
 

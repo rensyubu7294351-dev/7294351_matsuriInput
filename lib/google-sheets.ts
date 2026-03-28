@@ -145,42 +145,102 @@ export async function getAttendanceRecords(
   }));
 }
 
-// ---- 送信済み管理シート ----
-// festival_id | nickname | line_user_id | status | sent_at | link_type
-
-const SENT_LOG_RANGE = "送信履歴!A:F";
+// ---- 各祭りスプレッドシート内の送信管理シート ----
+// 行1-4: 祭り設定情報、行5: 空、行6: ヘッダー、行7以降: データ
 
 export interface SentLogEntry {
-  festivalId: string;
   nickname: string;
-  lineUserId: string;
   status: string;
   sentAt: string;
   linkType: "participation" | "pending";
 }
 
-export async function getSentLog(festivalId: string): Promise<SentLogEntry[]> {
-  const rows = await getSheetValues(MEMBERS_SHEET_ID, SENT_LOG_RANGE);
-  return rows
-    .slice(1)
-    .filter((row) => row[0] === festivalId)
-    .map((row) => ({
-      festivalId: row[0] ?? "",
-      nickname: row[1] ?? "",
-      lineUserId: row[2] ?? "",
-      status: row[3] ?? "",
-      sentAt: row[4] ?? "",
-      linkType: (row[5] ?? "participation") as "participation" | "pending",
-    }));
+export async function getSentLog(festivalSpreadsheetId: string): Promise<SentLogEntry[]> {
+  try {
+    const rows = await getSheetValues(festivalSpreadsheetId, "送信管理!A:D");
+    // 先頭6行はヘッダーエリア（行7以降がデータ）
+    return rows
+      .slice(6)
+      .filter((row) => row[0])
+      .map((row) => ({
+        nickname: row[0] ?? "",
+        status: row[1] ?? "",
+        sentAt: row[2] ?? "",
+        linkType: (row[3] ?? "participation") as "participation" | "pending",
+      }));
+  } catch {
+    return [];
+  }
 }
 
-export async function logSent(entry: SentLogEntry): Promise<void> {
-  await appendSheetRow(MEMBERS_SHEET_ID, SENT_LOG_RANGE, [
-    entry.festivalId,
+export async function logSent(entry: SentLogEntry, festivalSpreadsheetId: string): Promise<void> {
+  await appendSheetRow(festivalSpreadsheetId, "送信管理!A:D", [
     entry.nickname,
-    entry.lineUserId,
     entry.status,
     entry.sentAt,
     entry.linkType,
   ]);
+}
+
+export async function initFestivalSentSheet(
+  festivalSpreadsheetId: string,
+  config: {
+    festivalName: string;
+    deadline: string;
+    participationGroupLink: string;
+    pendingGroupLink: string;
+  }
+): Promise<void> {
+  const auth = getAuth();
+  const sheets = google.sheets({ version: "v4", auth });
+
+  // シート存在確認
+  const spreadsheet = await sheets.spreadsheets.get({ spreadsheetId: festivalSpreadsheetId });
+  const existingTitles = (spreadsheet.data.sheets ?? []).map((s) => s.properties?.title ?? "");
+
+  if (!existingTitles.includes("送信管理")) {
+    await sheets.spreadsheets.batchUpdate({
+      spreadsheetId: festivalSpreadsheetId,
+      requestBody: { requests: [{ addSheet: { properties: { title: "送信管理" } } }] },
+    });
+  }
+
+  await sheets.spreadsheets.values.batchUpdate({
+    spreadsheetId: festivalSpreadsheetId,
+    requestBody: {
+      valueInputOption: "RAW",
+      data: [
+        { range: "送信管理!A1:B1", values: [["祭り名", config.festivalName]] },
+        { range: "送信管理!A2:B2", values: [["回答期日", config.deadline]] },
+        { range: "送信管理!A3:B3", values: [["参加グループリンク", config.participationGroupLink]] },
+        { range: "送信管理!A4:B4", values: [["保留グループリンク", config.pendingGroupLink]] },
+        { range: "送信管理!A6:D6", values: [["あだ名", "参加状況", "送信日時", "リンク種別"]] },
+      ],
+    },
+  });
+}
+
+export async function updateFestivalSentSheetConfig(
+  festivalSpreadsheetId: string,
+  config: {
+    festivalName: string;
+    deadline: string;
+    participationGroupLink: string;
+    pendingGroupLink: string;
+  }
+): Promise<void> {
+  const auth = getAuth();
+  const sheets = google.sheets({ version: "v4", auth });
+  await sheets.spreadsheets.values.batchUpdate({
+    spreadsheetId: festivalSpreadsheetId,
+    requestBody: {
+      valueInputOption: "RAW",
+      data: [
+        { range: "送信管理!B1", values: [[config.festivalName]] },
+        { range: "送信管理!B2", values: [[config.deadline]] },
+        { range: "送信管理!B3", values: [[config.participationGroupLink]] },
+        { range: "送信管理!B4", values: [[config.pendingGroupLink]] },
+      ],
+    },
+  });
 }
