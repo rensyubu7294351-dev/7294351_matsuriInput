@@ -123,9 +123,6 @@ export default function SendStatus({ festivalId, onSelectFestival }: SendStatusP
     }
   }
 
-  const unsentCount = records.filter((r) => r.inviteType && !r.sent).length;
-  const sentCount = records.filter((r) => r.inviteType && r.sent).length;
-
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -148,76 +145,60 @@ export default function SendStatus({ festivalId, onSelectFestival }: SendStatusP
 
       {festivalId && (
         <>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-gray-700">送信状況サマリー</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex gap-6">
-                <div>
-                  <p className="text-2xl font-bold text-green-600">{sentCount}</p>
-                  <p className="text-xs text-gray-500">送信済み</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-orange-500">{unsentCount}</p>
-                  <p className="text-xs text-gray-500">未送信</p>
-                </div>
-                <div>
-                  <p className="text-2xl font-bold text-gray-400">{records.filter((r) => !r.inviteType).length}</p>
-                  <p className="text-xs text-gray-500">対象外</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <div className="flex gap-2">
-            <Button onClick={handleSendAll} disabled={sending || loading}>
-              {sending ? "送信中..." : "未送信に一括送信"}
-            </Button>
-            <Button variant="outline" onClick={loadRecords} disabled={loading}>
-              更新
-            </Button>
-          </div>
-
           <GroupStatus festivalId={festivalId} groupType="participation" label="参加グループ" />
           <GroupStatus festivalId={festivalId} groupType="pending" label="保留グループ" />
 
-          {loading ? (
-            <p className="text-sm text-gray-500">読み込み中...</p>
-          ) : (
-            <Card>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>あだ名</TableHead>
-                    <TableHead>回答</TableHead>
-                    <TableHead>送信状況</TableHead>
-                    <TableHead></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {records.map((r) => (
-                    <TableRow key={r.nickname}>
-                      <TableCell className="font-medium">{r.nickname}</TableCell>
-                      <TableCell className="text-sm text-gray-600">{r.status}</TableCell>
-                      <TableCell>{inviteTypeBadge(r.inviteType, r.sent)}</TableCell>
-                      <TableCell>
-                        {r.inviteType && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => handleResend(r.nickname)}
-                          >
-                            {r.sent ? "再送" : "送信"}
-                          </Button>
-                        )}
-                      </TableCell>
+          <Card>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm text-gray-700">招待リンク送信（送信漏れ対応）</CardTitle>
+                <div className="flex gap-2">
+                  <Button onClick={handleSendAll} disabled={sending || loading} size="sm">
+                    {sending ? "送信中..." : "未送信に一括送信"}
+                  </Button>
+                  <Button variant="outline" onClick={loadRecords} disabled={loading} size="sm">
+                    更新
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              {loading ? (
+                <p className="text-sm text-gray-500 p-4">読み込み中...</p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>あだ名</TableHead>
+                      <TableHead>回答</TableHead>
+                      <TableHead>送信状況</TableHead>
+                      <TableHead></TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-          )}
+                  </TableHeader>
+                  <TableBody>
+                    {records.map((r) => (
+                      <TableRow key={r.nickname}>
+                        <TableCell className="font-medium">{r.nickname}</TableCell>
+                        <TableCell className="text-sm text-gray-600">{r.status}</TableCell>
+                        <TableCell>{inviteTypeBadge(r.inviteType, r.sent)}</TableCell>
+                        <TableCell>
+                          {r.inviteType && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => handleResend(r.nickname)}
+                            >
+                              {r.sent ? "再送" : "送信"}
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
         </>
       )}
     </div>
