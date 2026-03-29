@@ -114,12 +114,16 @@ export async function updateFestivalConfig(
     },
   });
 
-  await updateFestivalSentSheetConfig(config.spreadsheetId, {
-    festivalName: config.festivalName,
-    deadline: config.deadline,
-    participationGroupLink: config.participationGroupLink,
-    pendingGroupLink: config.pendingGroupLink,
-  });
+  try {
+    await updateFestivalSentSheetConfig(config.spreadsheetId, {
+      festivalName: config.festivalName,
+      deadline: config.deadline,
+      participationGroupLink: config.participationGroupLink,
+      pendingGroupLink: config.pendingGroupLink,
+    });
+  } catch {
+    // 送信管理シートが未作成の場合はスキップ（祭り設定の保存は成功扱い）
+  }
 }
 
 /** 今日（JST）が期日翌日になっている祭りを返す */

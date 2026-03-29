@@ -42,32 +42,37 @@ export default function FestivalForm({ initial, onSaved, onCancel }: FestivalFor
     e.preventDefault();
     setSaving(true);
 
-    const payload = {
-      ...(initial?.id ? { id: initial.id, createdAt: initial.createdAt } : {}),
-      festivalName,
-      spreadsheetId,
-      participationGroupLink,
-      pendingGroupLink,
-      deadline: `${deadlineDate} ${deadlineTime}`,
-      driveFolderUrl,
-      participationGroupId,
-      pendingGroupId,
-    };
+    try {
+      const payload = {
+        ...(initial?.id ? { id: initial.id, createdAt: initial.createdAt } : {}),
+        festivalName,
+        spreadsheetId,
+        participationGroupLink,
+        pendingGroupLink,
+        deadline: `${deadlineDate} ${deadlineTime}`,
+        driveFolderUrl,
+        participationGroupId,
+        pendingGroupId,
+      };
 
-    const res = await fetch("/api/admin/festivals", {
-      method: initial?.id ? "PUT" : "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+      const res = await fetch("/api/admin/festivals", {
+        method: initial?.id ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    if (res.ok) {
-      toast.success(initial?.id ? "更新しました" : "追加しました");
-      onSaved();
-    } else {
-      const data = await res.json();
-      toast.error(data.error ?? "保存に失敗しました");
+      if (res.ok) {
+        toast.success(initial?.id ? "更新しました" : "追加しました");
+        onSaved();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error ?? "保存に失敗しました");
+      }
+    } catch {
+      toast.error("通信エラーが発生しました");
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   }
 
   return (
