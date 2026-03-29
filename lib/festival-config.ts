@@ -126,6 +126,37 @@ export async function updateFestivalConfig(
   }
 }
 
+export async function deleteFestivalConfig(id: string): Promise<void> {
+  const rows = await getSheetValues(MEMBERS_SHEET_ID, CONFIG_RANGE);
+  const rowIndex = rows.findIndex((row) => row[0] === id);
+  if (rowIndex === -1) throw new Error(`Festival config not found: ${id}`);
+  const sheetRow = rowIndex + 1;
+
+  const sheets = getSheetsClient();
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: MEMBERS_SHEET_ID,
+    requestBody: {
+      requests: [{
+        deleteDimension: {
+          range: {
+            sheetId: await getSheetId(sheets, MEMBERS_SHEET_ID, "祭り設定"),
+            dimension: "ROWS",
+            startIndex: sheetRow - 1,
+            endIndex: sheetRow,
+          },
+        },
+      }],
+    },
+  });
+}
+
+async function getSheetId(sheets: ReturnType<typeof getSheetsClient>, spreadsheetId: string, title: string): Promise<number> {
+  const res = await sheets.spreadsheets.get({ spreadsheetId });
+  const sheet = (res.data.sheets ?? []).find((s) => s.properties?.title === title);
+  if (!sheet) throw new Error(`Sheet not found: ${title}`);
+  return sheet.properties!.sheetId!;
+}
+
 /** 今日（JST）が期日翌日になっている祭りを返す */
 export async function getFestivalsForTodaySend(): Promise<FestivalConfig[]> {
   const configs = await getFestivalConfigs();

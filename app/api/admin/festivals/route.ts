@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifySessionToken } from "@/lib/auth";
-import { getFestivalConfigs, saveFestivalConfig, updateFestivalConfig } from "@/lib/festival-config";
+import { getFestivalConfigs, saveFestivalConfig, updateFestivalConfig, deleteFestivalConfig } from "@/lib/festival-config";
 
 async function requireAdmin() {
   const cookieStore = await cookies();
@@ -35,5 +35,16 @@ export async function PUT(req: NextRequest) {
   if (!body.id) return NextResponse.json({ error: "id is required" }, { status: 400 });
 
   await updateFestivalConfig(body);
+  return NextResponse.json({ success: true });
+}
+
+export async function DELETE(req: NextRequest) {
+  const lineUserId = await requireAdmin();
+  if (!lineUserId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const id = req.nextUrl.searchParams.get("id");
+  if (!id) return NextResponse.json({ error: "id is required" }, { status: 400 });
+
+  await deleteFestivalConfig(id);
   return NextResponse.json({ success: true });
 }
