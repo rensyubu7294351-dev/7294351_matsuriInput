@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHmac } from "crypto";
+import { logGroupJoin } from "@/lib/google-sheets";
 
 function verifySignature(body: string, signature: string | null): boolean {
   if (!signature) return false;
@@ -82,6 +83,16 @@ export async function POST(req: NextRequest) {
       await sendPushToAdmin(
         `━━━━━━━━━━━━━━━\n【グループ参加通知】\nグループ名：${groupName}\n\nグループID:\n${groupId}\n━━━━━━━━━━━━━━━\n管理画面で上のIDを「参加グループID」または「保留グループID」の適切な方に入力してください。`
       );
+    }
+
+    // メンバーがグループに参加したとき
+    if (event.type === "memberJoined" && event.source?.type === "group") {
+      const groupId = event.source.groupId as string;
+      for (const member of event.joined?.members ?? []) {
+        if (member.type === "user") {
+          await logGroupJoin(groupId, member.userId);
+        }
+      }
     }
   }
 

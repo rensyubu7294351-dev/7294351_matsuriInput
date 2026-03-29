@@ -220,6 +220,28 @@ export async function initFestivalSentSheet(
   });
 }
 
+// ---- グループ参加ログ（管理用スプレッドシート）----
+
+export async function getGroupJoinLog(groupId: string): Promise<{ lineUserId: string; joinedAt: string }[]> {
+  try {
+    const rows = await getSheetValues(MEMBERS_SHEET_ID, "グループ参加ログ!A:C");
+    return rows
+      .slice(1)
+      .filter((row) => row[0] === groupId && row[1])
+      .map((row) => ({
+        lineUserId: row[1] ?? "",
+        joinedAt: row[2] ?? "",
+      }));
+  } catch {
+    return [];
+  }
+}
+
+export async function logGroupJoin(groupId: string, lineUserId: string): Promise<void> {
+  const joinedAt = new Date().toISOString();
+  await appendSheetRow(MEMBERS_SHEET_ID, "グループ参加ログ!A:C", [groupId, lineUserId, joinedAt]);
+}
+
 export async function updateFestivalSentSheetConfig(
   festivalSpreadsheetId: string,
   config: {

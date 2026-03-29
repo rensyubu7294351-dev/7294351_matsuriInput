@@ -2,40 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifySessionToken } from "@/lib/auth";
 import { getFestivalConfigById } from "@/lib/festival-config";
-import { getMembers, getSentLog } from "@/lib/google-sheets";
+import { getMembers, getSentLog, getGroupJoinLog } from "@/lib/google-sheets";
 
 async function requireAdmin() {
   const cookieStore = await cookies();
   const session = cookieStore.get("admin_session")?.value;
   if (!session) return null;
   return verifySessionToken(session);
-}
-
-async function getAllGroupMemberIds(groupId: string): Promise<string[]> {
-  const ids: string[] = [];
-  let start: string | undefined;
-
-  do {
-    const url = new URL(`https://api.line.me/v2/bot/group/${groupId}/members/ids`);
-    if (start) url.searchParams.set("start", start);
-
-    const res = await fetch(url.toString(), {
-      headers: {
-        Authorization: `Bearer ${process.env.LINE_MONITOR_CHANNEL_ACCESS_TOKEN}`,
-      },
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`LINE API error ${res.status}: ${text}`);
-    }
-
-    const data = await res.json();
-    ids.push(...(data.memberIds ?? []));
-    start = data.next;
-  } while (start);
-
-  return ids;
 }
 
 // GET /api/admin/group-status?festivalId=xxx&groupType=participation|pending
@@ -61,36 +34,29 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ groupId: null, members: [] });
   }
 
-  let memberIds: string[];
-  try {
-    memberIds = await getAllGroupMemberIds(groupId);
-  } catch (e) {
-    return NextResponse.json(
-      { error: `LINEグループメンバーの取得に失敗しました: ${e instanceof Error ? e.message : String(e)}` },
-      { status: 500 }
-    );
-  }
+  const linkType = groupType === "participation" ? "participation" : "pending";
 
-  const [allMembers, sentLog] = await Promise.all([
+  const [allMembers, sentLog, joinLog] = await Promise.all([
     getMembers(),
     getSentLog(config.spreadsheetId),
+    getGroupJoinLog(groupId),
   ]);
 
   // 招待リンクを送った人だけに絞り込む
-  const linkType = groupType === "participation" ? "participation" : "pending";
   const invitedNicknames = new Set(
     sentLog.filter((s) => s.linkType === linkType).map((s) => s.nickname)
   );
 
-  const memberIdSet = new Set(memberIds);
+  // グループ参加ログからジョイン済みLINEユーザーIDのセットを作る
+  const joinedUserIds = new Set(joinLog.map((j) => j.lineUserId));
   const memberMap = new Map(allMembers.map((m) => [m.nickname, m.lineUserId]));
 
   const members = [...invitedNicknames].map((nickname) => {
-    const lineUserId = memberMap.get(nickname) ?? "";
+    const uid = memberMap.get(nickname) ?? "";
     return {
       nickname,
-      lineUserId,
-      joined: lineUserId ? memberIdSet.has(lineUserId) : false,
+      lineUserId: uid,
+      joined: uid ? joinedUserIds.has(uid) : false,
     };
   });
 
