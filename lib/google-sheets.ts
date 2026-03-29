@@ -67,9 +67,9 @@ export async function getMembers(): Promise<Member[]> {
   const rows = await getSheetValues(MEMBERS_SHEET_ID, MEMBERS_RANGE);
   // 1行目はヘッダー
   return rows.slice(1).map((row) => ({
-    nickname: row[0] ?? "",
+    nickname: (row[0] ?? "").trim(),
     fullName: row[1] ?? "",
-    lineUserId: row[2] ?? "",
+    lineUserId: (row[2] ?? "").trim(),
     registeredAt: row[3] ?? "",
   }));
 }
@@ -227,9 +227,9 @@ export async function getGroupJoinLog(groupId: string): Promise<{ lineUserId: st
     const rows = await getSheetValues(MEMBERS_SHEET_ID, "グループ参加ログ!A:C");
     return rows
       .slice(1)
-      .filter((row) => row[0] === groupId && row[1])
+      .filter((row) => row[0]?.trim() === groupId.trim() && row[1])
       .map((row) => ({
-        lineUserId: row[1] ?? "",
+        lineUserId: row[1].trim() ?? "",
         joinedAt: row[2] ?? "",
       }));
   } catch {

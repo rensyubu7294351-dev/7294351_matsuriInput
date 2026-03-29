@@ -28,8 +28,8 @@ export async function getFestivalConfigs(): Promise<FestivalConfig[]> {
     deadline: row[5] ?? "",
     driveFolderUrl: row[6] ?? "",
     createdAt: row[7] ?? "",
-    participationGroupId: row[8] ?? "",
-    pendingGroupId: row[9] ?? "",
+    participationGroupId: (row[8] ?? "").trim(),
+    pendingGroupId: (row[9] ?? "").trim(),
   }));
 }
 
