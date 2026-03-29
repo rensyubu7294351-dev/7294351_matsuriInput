@@ -3,25 +3,18 @@
  *
  * 使い方:
  * 1. Googleフォームに紐付いたスプレッドシートのApps Scriptにこのコードをコピーする
- * 2. スクリプトプロパティを設定する（下記参照）
- * 3. onFormSubmit を「フォーム送信時」トリガーとして登録する
+ * 2. onFormSubmit を「フォーム送信時」トリガーとして登録する
  *
- * スクリプトプロパティ（スクリプトエディタ > プロジェクトの設定 > スクリプトのプロパティ）:
- *   APP_URL        : アプリのURL（例: https://7294351matsuriinput.vercel.app）※毎回同じ
- *   WEBHOOK_SECRET : 管理者から共有された秘密キー ※毎回同じ
- *
+ * ※ 下の2行は変更しないでください
  * ※ FESTIVAL_IDの設定は不要です。スプレッドシートIDから自動で祭りを特定します。
  */
 
-function onFormSubmit(e) {
-  var props = PropertiesService.getScriptProperties();
-  var appUrl = props.getProperty("APP_URL");
-  var webhookSecret = props.getProperty("WEBHOOK_SECRET");
+var APP_URL = "https://7294351matsuriinput.vercel.app";
+var WEBHOOK_SECRET = "MOQIrIeAohA/KsHFIl7pwDzfv4hmp8FpsE9J73QGvAM=";
 
-  if (!appUrl || !webhookSecret) {
-    Logger.log("スクリプトプロパティが設定されていません（APP_URL と WEBHOOK_SECRET が必要です）");
-    return;
-  }
+function onFormSubmit(e) {
+  var appUrl = APP_URL;
+  var webhookSecret = WEBHOOK_SECRET;
 
   // このスプレッドシート自身のIDを自動取得（FESTIVAL_IDの手動設定が不要）
   var spreadsheetId = SpreadsheetApp.getActiveSpreadsheet().getId();
