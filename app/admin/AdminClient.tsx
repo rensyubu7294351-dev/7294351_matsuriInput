@@ -105,7 +105,7 @@ export default function AdminClient() {
                 : "border-transparent text-gray-500"
             }`}
           >
-            送信状況
+            回答状況
           </button>
         </div>
       </nav>

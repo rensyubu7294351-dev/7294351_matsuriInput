@@ -123,7 +123,7 @@ export default function FestivalList({ onSelect }: FestivalListProps) {
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => setEditTarget(c)}>編集</Button>
-                <Button size="sm" onClick={() => onSelect(c.id)}>送信状況</Button>
+                <Button size="sm" onClick={() => onSelect(c.id)}>回答状況</Button>
                 <Button
                   size="sm"
                   variant="destructive"

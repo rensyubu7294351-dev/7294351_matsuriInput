@@ -75,7 +75,7 @@ export default function SendStatus({ festivalId, onSelectFestival }: SendStatusP
     if (res.ok) {
       setRecords(await res.json());
     } else {
-      toast.error("送信状況の取得に失敗しました");
+      toast.error("回答状況の取得に失敗しました");
     }
     setLoading(false);
   }
@@ -171,7 +171,7 @@ export default function SendStatus({ festivalId, onSelectFestival }: SendStatusP
                     <TableRow>
                       <TableHead>あだ名</TableHead>
                       <TableHead>回答</TableHead>
-                      <TableHead>送信状況</TableHead>
+                      <TableHead>回答状況</TableHead>
                       <TableHead></TableHead>
                     </TableRow>
                   </TableHeader>
