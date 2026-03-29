@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
     nickname: body.nickname,
     fullName: body.fullName ?? "",
     lineUserId: body.lineUserId,
+    email: body.email ?? "",
   });
   return NextResponse.json({ success: true }, { status: 201 });
 }
