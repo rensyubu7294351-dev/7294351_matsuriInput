@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { findMemberByNickname, logSent } from "@/lib/google-sheets";
+import { findMemberByEmail, logSent } from "@/lib/google-sheets";
 import { getFestivalConfigBySpreadsheetId } from "@/lib/festival-config";
 import { sendInviteLink, InviteType } from "@/lib/line-push";
 
@@ -21,10 +21,10 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { spreadsheetId, nickname, status } = body;
+  const { spreadsheetId, email, status } = body;
 
-  if (!spreadsheetId || !nickname || !status) {
-    return NextResponse.json({ error: "spreadsheetId, nickname, status are required" }, { status: 400 });
+  if (!spreadsheetId || !email || !status) {
+    return NextResponse.json({ error: "spreadsheetId, email, status are required" }, { status: 400 });
   }
 
   const inviteType = resolveInviteType(status);
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
   const [config, member] = await Promise.all([
     getFestivalConfigBySpreadsheetId(spreadsheetId),
-    findMemberByNickname(nickname),
+    findMemberByEmail(email),
   ]);
 
   if (!config) {
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
 
   if (!member || !member.lineUserId) {
     // LINE IDが未登録 → ログだけ残して後でCronが再試行
-    return NextResponse.json({ skipped: true, reason: "LINE user ID not registered", nickname });
+    return NextResponse.json({ skipped: true, reason: "LINE user ID not registered", email });
   }
 
   await sendInviteLink(
@@ -56,11 +56,11 @@ export async function POST(req: NextRequest) {
   );
 
   await logSent({
-    nickname,
+    email: email.trim().toLowerCase(),
     status,
     sentAt: new Date().toISOString(),
     linkType: inviteType,
   }, config.spreadsheetId);
 
-  return NextResponse.json({ success: true, nickname, inviteType });
+  return NextResponse.json({ success: true, email, inviteType });
 }

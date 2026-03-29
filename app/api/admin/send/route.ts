@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { verifySessionToken } from "@/lib/auth";
 import {
   getAttendanceRecords,
-  findMemberByNickname,
+  findMemberByEmail,
   getSentLog,
   logSent,
 } from "@/lib/google-sheets";
@@ -39,16 +39,19 @@ export async function GET(req: NextRequest) {
     getSentLog(config.spreadsheetId),
   ]);
 
-  const sentMap = new Map(sentLog.map((s) => [s.nickname, s]));
+  const sentMap = new Map(sentLog.map((s) => [s.email, s]));
 
-  const summary = records.map((r) => ({
-    nickname: r.nickname,
-    fullName: r.fullName,
-    status: r.status,
-    inviteType: resolveInviteType(r.status),
-    sent: sentMap.has(r.nickname),
-    sentAt: sentMap.get(r.nickname)?.sentAt ?? null,
-  }));
+  const summary = records.map((r) => {
+    const email = r.email.trim().toLowerCase();
+    return {
+      nickname: r.nickname,
+      fullName: r.fullName,
+      status: r.status,
+      inviteType: resolveInviteType(r.status),
+      sent: sentMap.has(email),
+      sentAt: sentMap.get(email)?.sentAt ?? null,
+    };
+  });
 
   return NextResponse.json(summary);
 }
@@ -69,7 +72,7 @@ export async function POST(req: NextRequest) {
     getSentLog(config.spreadsheetId),
   ]);
 
-  const sentNicknames = new Set(sentLog.map((s) => s.nickname));
+  const sentEmails = new Set(sentLog.map((s) => s.email));
   const targets = nickname
     ? records.filter((r) => r.nickname === nickname)
     : records;
@@ -81,15 +84,16 @@ export async function POST(req: NextRequest) {
   for (const record of targets) {
     const inviteType = resolveInviteType(record.status);
     if (!inviteType) { skipped++; continue; }
-    if (sentNicknames.has(record.nickname) && !nickname) {
-      // 一括送信では送済みをスキップ、個別送信は強制再送
+    const recordEmail = record.email.trim().toLowerCase();
+    if (!recordEmail) { errors.push(`メール未記入: ${record.nickname}`); continue; }
+    if (sentEmails.has(recordEmail) && !nickname) {
       skipped++;
       continue;
     }
 
-    const member = await findMemberByNickname(record.nickname);
+    const member = await findMemberByEmail(recordEmail);
     if (!member?.lineUserId) {
-      errors.push(`LINE ID未登録: ${record.nickname}`);
+      errors.push(`LINE ID未登録: ${record.email}`);
       continue;
     }
 
@@ -102,14 +106,14 @@ export async function POST(req: NextRequest) {
         config.festivalName
       );
       await logSent({
-        nickname: record.nickname,
+        email: recordEmail,
         status: record.status,
         sentAt: new Date().toISOString(),
         linkType: inviteType,
       }, config.spreadsheetId);
       sent++;
     } catch (e) {
-      errors.push(`送信失敗 ${record.nickname}: ${e instanceof Error ? e.message : String(e)}`);
+      errors.push(`送信失敗 ${record.email}: ${e instanceof Error ? e.message : String(e)}`);
     }
   }
 

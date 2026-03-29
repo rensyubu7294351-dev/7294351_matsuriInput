@@ -23,17 +23,17 @@ function onFormSubmit(e) {
   // A=0(タイムスタンプ), B=1(メールアドレス), C=2(あだ名), ..., H=7(参加・不参加)
   // F列・G列が同名「振り」のためタイトルではなく列番号で取得
   var values = e.values;
-  var nickname = values[2] || "";
+  var email = values[1] || "";
   var status = values[7] || "";
 
-  if (!nickname || !status) {
-    Logger.log("あだ名またはステータスが取得できませんでした");
+  if (!email || !status) {
+    Logger.log("メールアドレスまたはステータスが取得できませんでした");
     return;
   }
 
   var payload = JSON.stringify({
     spreadsheetId: spreadsheetId,
-    nickname: nickname,
+    email: email,
     status: status
   });
 

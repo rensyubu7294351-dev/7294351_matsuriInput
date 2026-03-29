@@ -30,7 +30,7 @@ async function getExistingSheetTitles(spreadsheetId: string): Promise<string[]> 
 const SHEET_DEFINITIONS = [
   {
     title: "メンバー",
-    headers: ["あだ名", "氏名", "LINEユーザーID", "登録日時"],
+    headers: ["あだ名", "氏名", "LINEユーザーID", "登録日時", "メールアドレス"],
   },
   {
     title: "祭り設定",

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAttendanceRecords, findMemberByNickname, getSentLog, logSent } from "@/lib/google-sheets";
+import { getAttendanceRecords, findMemberByEmail, getSentLog, logSent } from "@/lib/google-sheets";
 import { getFestivalsForTodaySend } from "@/lib/festival-config";
 import { sendInviteLink, InviteType } from "@/lib/line-push";
 
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
       getSentLog(festival.spreadsheetId),
     ]);
 
-    const sentNicknames = new Set(sentLog.map((s) => s.nickname));
+    const sentEmails = new Set(sentLog.map((s) => s.email));
     let sent = 0;
     let skipped = 0;
     const errors: string[] = [];
@@ -37,11 +37,13 @@ export async function GET(req: NextRequest) {
     for (const record of records) {
       const inviteType = resolveInviteType(record.status);
       if (!inviteType) { skipped++; continue; }
-      if (sentNicknames.has(record.nickname)) { skipped++; continue; }
+      const recordEmail = record.email.trim().toLowerCase();
+      if (!recordEmail) { skipped++; continue; }
+      if (sentEmails.has(recordEmail)) { skipped++; continue; }
 
-      const member = await findMemberByNickname(record.nickname);
+      const member = await findMemberByEmail(recordEmail);
       if (!member?.lineUserId) {
-        errors.push(`LINE ID未登録: ${record.nickname}`);
+        errors.push(`LINE ID未登録: ${record.email}`);
         continue;
       }
 
@@ -54,14 +56,14 @@ export async function GET(req: NextRequest) {
           festival.festivalName
         );
         await logSent({
-          nickname: record.nickname,
+          email: recordEmail,
           status: record.status,
           sentAt: new Date().toISOString(),
           linkType: inviteType,
         }, festival.spreadsheetId);
         sent++;
       } catch (e) {
-        errors.push(`送信失敗 ${record.nickname}: ${e instanceof Error ? e.message : String(e)}`);
+        errors.push(`送信失敗 ${record.email}: ${e instanceof Error ? e.message : String(e)}`);
       }
     }
 

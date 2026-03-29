@@ -13,6 +13,7 @@ export default function RegisterPage() {
   const [state, setState] = useState<State>("loading");
   const [lineUserId, setLineUserId] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [email, setEmail] = useState("");
   const [nickname, setNickname] = useState("");
   const [fullName, setFullName] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
@@ -47,14 +48,14 @@ export default function RegisterPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!nickname.trim()) return;
+    if (!email.trim()) return;
     setState("submitting");
 
     try {
       const res = await fetch("/api/liff/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lineUserId, nickname: nickname.trim(), fullName: fullName.trim() }),
+        body: JSON.stringify({ lineUserId, email: email.trim(), nickname: nickname.trim(), fullName: fullName.trim() }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -144,15 +145,25 @@ export default function RegisterPage() {
               <p className="text-sm font-medium mt-1">{displayName}</p>
             </div>
             <div className="space-y-1">
-              <Label htmlFor="nickname">フォームで使うあだ名 *</Label>
+              <Label htmlFor="email">メールアドレス *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="例：taro@example.com"
+                required
+              />
+              <p className="text-xs text-gray-500">出欠フォームに登録しているメールアドレスを入力してください</p>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="nickname">あだ名（任意）</Label>
               <Input
                 id="nickname"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
                 placeholder="例：たろう"
-                required
               />
-              <p className="text-xs text-gray-500">出欠フォームで入力するあだ名と同じにしてください</p>
             </div>
             <div className="space-y-1">
               <Label htmlFor="fullName">本名（任意）</Label>

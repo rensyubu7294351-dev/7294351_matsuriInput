@@ -8,5 +8,5 @@ export async function GET(req: NextRequest) {
   }
 
   const member = await findMemberByLineUserId(lineUserId);
-  return NextResponse.json({ registered: !!member });
+  return NextResponse.json({ registered: !!(member?.email) });
 }

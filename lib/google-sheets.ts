@@ -54,13 +54,14 @@ export async function updateSheetCell(
 // ---- メンバーシート操作 ----
 
 const MEMBERS_SHEET_ID = process.env.MEMBERS_SPREADSHEET_ID!;
-const MEMBERS_RANGE = "メンバー!A:D"; // あだ名, 氏名, LINE user ID, 登録日時
+const MEMBERS_RANGE = "メンバー!A:E"; // あだ名, 氏名, LINE user ID, 登録日時, メールアドレス
 
 export interface Member {
   nickname: string;
   fullName: string;
   lineUserId: string;
   registeredAt: string;
+  email: string;
 }
 
 export async function getMembers(): Promise<Member[]> {
@@ -71,16 +72,15 @@ export async function getMembers(): Promise<Member[]> {
     fullName: row[1] ?? "",
     lineUserId: (row[2] ?? "").trim(),
     registeredAt: row[3] ?? "",
+    email: (row[4] ?? "").trim(),
   }));
 }
 
-export async function findMemberByNickname(
-  nickname: string
+export async function findMemberByEmail(
+  email: string
 ): Promise<Member | undefined> {
   const members = await getMembers();
-  return members.find(
-    (m) => m.nickname.trim() === nickname.trim()
-  );
+  return members.find((m) => m.email.toLowerCase() === email.trim().toLowerCase());
 }
 
 export async function findMemberByLineUserId(
@@ -92,12 +92,28 @@ export async function findMemberByLineUserId(
 
 export async function registerMember(member: Omit<Member, "registeredAt">): Promise<void> {
   const registeredAt = new Date().toISOString();
-  await appendSheetRow(MEMBERS_SHEET_ID, "メンバー!A:D", [
+  await appendSheetRow(MEMBERS_SHEET_ID, "メンバー!A:E", [
     member.nickname,
     member.fullName,
     member.lineUserId,
     registeredAt,
+    member.email,
   ]);
+}
+
+export async function updateMemberEmail(lineUserId: string, email: string): Promise<void> {
+  const auth = getAuth();
+  const sheets = google.sheets({ version: "v4", auth });
+  const rows = await getSheetValues(MEMBERS_SHEET_ID, MEMBERS_RANGE);
+  const rowIndex = rows.findIndex((row) => (row[2] ?? "").trim() === lineUserId);
+  if (rowIndex === -1) return;
+  const sheetRow = rowIndex + 1;
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: MEMBERS_SHEET_ID,
+    range: `メンバー!E${sheetRow}`,
+    valueInputOption: "RAW",
+    requestBody: { values: [[email]] },
+  });
 }
 
 // ---- 出欠シート操作（読み取り専用） ----
@@ -149,7 +165,7 @@ export async function getAttendanceRecords(
 // 行1-4: 祭り設定情報、行5: 空、行6: ヘッダー、行7以降: データ
 
 export interface SentLogEntry {
-  nickname: string;
+  email: string;
   status: string;
   sentAt: string;
   linkType: "participation" | "pending";
@@ -163,7 +179,7 @@ export async function getSentLog(festivalSpreadsheetId: string): Promise<SentLog
       .slice(6)
       .filter((row) => row[0])
       .map((row) => ({
-        nickname: row[0] ?? "",
+        email: (row[0] ?? "").trim().toLowerCase(),
         status: row[1] ?? "",
         sentAt: row[2] ?? "",
         linkType: (row[3] ?? "participation") as "participation" | "pending",
@@ -175,7 +191,7 @@ export async function getSentLog(festivalSpreadsheetId: string): Promise<SentLog
 
 export async function logSent(entry: SentLogEntry, festivalSpreadsheetId: string): Promise<void> {
   await appendSheetRow(festivalSpreadsheetId, "送信管理!A:D", [
-    entry.nickname,
+    entry.email,
     entry.status,
     entry.sentAt,
     entry.linkType,
