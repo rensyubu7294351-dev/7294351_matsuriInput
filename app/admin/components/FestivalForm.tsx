@@ -95,8 +95,16 @@ export default function FestivalForm({ initial, onSaved, onCancel }: FestivalFor
             <Input id="participationGroupLink" value={participationGroupLink} onChange={e => setParticipationGroupLink(e.target.value)} placeholder="https://line.me/R/ti/g/..." required />
           </div>
           <div className="space-y-1">
+            <Label htmlFor="participationGroupId">参加グループID（未入力だと参加状況の確認ができません）</Label>
+            <Input id="participationGroupId" value={participationGroupId} onChange={e => setParticipationGroupId(e.target.value)} placeholder="監視ボット追加後にLINEで届きます（例: C4af4980629...）" />
+          </div>
+          <div className="space-y-1">
             <Label htmlFor="pendingGroupLink">保留グループ招待リンク *</Label>
             <Input id="pendingGroupLink" value={pendingGroupLink} onChange={e => setPendingGroupLink(e.target.value)} placeholder="https://line.me/R/ti/g/..." required />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="pendingGroupId">保留グループID（未入力だと参加状況の確認ができません）</Label>
+            <Input id="pendingGroupId" value={pendingGroupId} onChange={e => setPendingGroupId(e.target.value)} placeholder="監視ボット追加後にLINEで届きます（例: C4af4980629...）" />
           </div>
           <div className="space-y-1">
             <Label>回答期日 *（日本時間）</Label>
@@ -109,14 +117,6 @@ export default function FestivalForm({ initial, onSaved, onCancel }: FestivalFor
           <div className="space-y-1">
             <Label htmlFor="driveFolderUrl">ドライブフォルダURL（任意）</Label>
             <Input id="driveFolderUrl" value={driveFolderUrl} onChange={e => setDriveFolderUrl(e.target.value)} placeholder="https://drive.google.com/..." />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="participationGroupId">参加グループID（未入力だと参加状況の確認ができません）</Label>
-            <Input id="participationGroupId" value={participationGroupId} onChange={e => setParticipationGroupId(e.target.value)} placeholder="監視ボット追加後にLINEで届きます（例: C4af4980629...）" />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="pendingGroupId">保留グループID（未入力だと参加状況の確認ができません）</Label>
-            <Input id="pendingGroupId" value={pendingGroupId} onChange={e => setPendingGroupId(e.target.value)} placeholder="監視ボット追加後にLINEで届きます（例: C4af4980629...）" />
           </div>
           <div className="flex gap-2 pt-2">
             <Button type="submit" disabled={saving}>{saving ? "保存中..." : "保存"}</Button>
