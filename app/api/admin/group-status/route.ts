@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { verifySessionToken } from "@/lib/auth";
 import { getFestivalConfigById } from "@/lib/festival-config";
-import { getMembers, getSentLog, getGroupJoinLog } from "@/lib/google-sheets";
+import { getAttendanceRecords, getMembers, getGroupJoinLog } from "@/lib/google-sheets";
 
 async function requireAdmin() {
   const cookieStore = await cookies();
@@ -34,24 +34,29 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ groupId: null, members: [] });
   }
 
-  const linkType = groupType === "participation" ? "participation" : "pending";
-
-  const [allMembers, sentLog, joinLog] = await Promise.all([
+  const [attendanceRecords, allMembers, joinLog] = await Promise.all([
+    getAttendanceRecords(config.spreadsheetId),
     getMembers(),
-    getSentLog(config.spreadsheetId),
     getGroupJoinLog(groupId),
   ]);
 
-  // 招待リンクを送った人だけに絞り込む
-  const invitedNicknames = new Set(
-    sentLog.filter((s) => s.linkType === linkType).map((s) => s.nickname)
+  // Googleフォームの回答から対象者を絞り込む
+  // 参加グループ：「参加」と回答した人
+  // 保留グループ：「保留」と回答した人（保留（参加より）・保留（不参加より）両方）
+  const targetRecords = attendanceRecords.filter((r) =>
+    groupType === "participation"
+      ? r.status === "参加"
+      : r.status.startsWith("保留")
   );
+
+  // 同じあだ名で複数回答がある場合は重複を除去
+  const targetNicknames = [...new Set(targetRecords.map((r) => r.nickname).filter(Boolean))];
 
   // グループ参加ログからジョイン済みLINEユーザーIDのセットを作る
   const joinedUserIds = new Set(joinLog.map((j) => j.lineUserId));
   const memberMap = new Map(allMembers.map((m) => [m.nickname, m.lineUserId]));
 
-  const members = [...invitedNicknames].map((nickname) => {
+  const members = targetNicknames.map((nickname) => {
     const uid = memberMap.get(nickname) ?? "";
     return {
       nickname,

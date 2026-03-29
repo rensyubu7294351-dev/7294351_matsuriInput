@@ -69,12 +69,12 @@ export default function GroupStatus({ festivalId, groupType, label }: GroupStatu
         ) : (
           <div className="space-y-3">
             <div className="flex gap-4 text-sm">
-              <span className="text-green-600 font-medium">参加済み {joinedMembers.length}人</span>
-              <span className="text-orange-500 font-medium">未参加 {notJoinedMembers.length}人</span>
+              <span className="text-green-600 font-medium">グループ入室済み {joinedMembers.length}人</span>
+              <span className="text-orange-500 font-medium">グループ未入室 {notJoinedMembers.length}人</span>
             </div>
             {notJoinedMembers.length > 0 && (
               <div>
-                <p className="text-xs text-gray-500 mb-1">未参加のメンバー</p>
+                <p className="text-xs text-gray-500 mb-1">グループ未入室のメンバー（フォーム回答済み・リンク未使用）</p>
                 <div className="flex flex-wrap gap-1">
                   {notJoinedMembers.map((m) => (
                     <span
@@ -89,7 +89,7 @@ export default function GroupStatus({ festivalId, groupType, label }: GroupStatu
             )}
             {joinedMembers.length > 0 && (
               <div>
-                <p className="text-xs text-gray-500 mb-1">参加済みのメンバー</p>
+                <p className="text-xs text-gray-500 mb-1">グループ入室済みのメンバー</p>
                 <div className="flex flex-wrap gap-1">
                   {joinedMembers.map((m) => (
                     <span
